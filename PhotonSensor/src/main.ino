@@ -87,7 +87,7 @@ void loop()
 
   //Brodcast at time or go to sleep or wait
   curentTime = Time.second()%SUBMIT_TIMER;
-  if (curentTime == 0)
+  if ((curentTime == 0) || (curentTime <= 30))
   {
     // Get rain guage counct
     rain_count += get_rainGuageCount();
