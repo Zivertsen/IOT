@@ -2,6 +2,7 @@
 
 def DataStorage (temp, humi, press, rain ,time):
 
+    print("DataStorage")
     with open('weahter_file.txt','r') as f:
         Wlist = f.readlines()
 

@@ -9,14 +9,38 @@ import time
 import python_webhook as pwh
 import DataStore as DS 
 from datetime import datetime
-import DataStore as DS
 import python_webhook as WH
 import urllib3
 import json
+import os
 
 server = "test.mosquitto.org"
 #server = "192.168.0.19"
 port = 1883
+
+def DataStorage (temp, humi, press, rain ,time):
+
+    
+    print("DataStorage")
+    with open('employee_file.txt', 'r') as f:
+        Wlist = f.readlines()
+        print("DataStorage read")
+
+    
+    with open('employee_file.txt','w') as f:
+        #looking for the lenght of the list 
+        #if over 4320 (30 days of measurements)
+        #remove the oldes measurement
+        print("DataStorage write")
+        if int (len(Wlist)) >= 4320:
+            Wlist.remove(Wlist[0])
+        
+        #write all the old measurement to the file 
+        for item in Wlist:
+            f.write("%s" % item)
+        
+        #write the new measurement to the file
+        f.write(time.strftime("%Y-%m-%d %H:%M:%S") + ',' + str(temp) + ',' + str(humi) + ',' + str(press) + str(rain) + '\n')
 
 
 def compare_weather(sensor, temp, press, humi, rain):
@@ -48,7 +72,7 @@ def compare_weather(sensor, temp, press, humi, rain):
     main.weatherShumi = humi
     main.weatherSrain = rain
 
-    DS.DataStorage(Ttemp,Tpress,Thumi, rain, TimeNow)
+    DataStorage(Ttemp,Tpress,Thumi, rain, TimeNow)
 
 def on_connect(mqttc, obj, flags, rc):
     print("rc: " + str(rc))

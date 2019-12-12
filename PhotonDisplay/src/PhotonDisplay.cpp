@@ -98,15 +98,7 @@ void callback(char* topic, byte *payload, unsigned int length)
     Serial.println();
   }
 
-  if( STemp == 1 && SPress == 1 && SHumi == 1 && SRain == 1)
-    {
-      STemp = 0;
-      SPress = 0;
-      SHumi = 0;
-      SRain = 0;
-      Serial.println("MQTT goToSleep");
-      goToSleep(SUBMIT_TIMER,BOOT_TIME);
-    }
+  
 }
 
 // setup() runs once, when the device is first turned on.
@@ -145,17 +137,34 @@ void loop() {
 
   if(result.wokenUpByRtc())
   {
-
+    client.connect("weatherclient");
+    
     Serial.println("Get weather data");
     client.publish("weather/getweather","1");
+    // publish/subscribe
+    if (client.isConnected()) {
+      Serial.println("subscribe");
+      client.subscribe("weather/readtemp");
+      client.subscribe("weather/readpress");
+      client.subscribe("weather/readhumi");
+      client.subscribe("weather/readrain");
+    }
     while(true)
     {
       if (client.isConnected())
       {
         client.loop();
-        Serial.println("MQTT loop");
       }
-      
+      else if( STemp == 1 && SPress == 1 && SHumi == 1 && SRain == 1)
+      {
+        STemp = 0;
+        SPress = 0;
+        SHumi = 0;
+        SRain = 0;
+        Serial.println("MQTT goToSleep");
+        goToSleep(SUBMIT_TIMER,BOOT_TIME);
+        break;
+      }
       delay(2);
     }
   }
