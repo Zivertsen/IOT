@@ -14,8 +14,8 @@ import python_webhook as WH
 import urllib3
 import json
 
-#server = "test.mosquitto.org"
-server = "192.168.0.19"
+server = "test.mosquitto.org"
+#server = "192.168.0.19"
 port = 1883
 
 

@@ -48,3 +48,23 @@ void goToDeepSleep(int timer,int bTime)
         }  
     }  
 }
+
+void goToSleep(int timer,int bTime)
+{
+    
+    timeAtSleep = (Time.second()%timer);
+    while(true)
+    {
+        
+        currentTime = (Time.second()%timer);
+        if (currentTime != timeAtSleep)
+        {
+            int sleepTime = timer-currentTime-bTime;
+            Serial.print("Sleeping time: ");
+            Serial.println(sleepTime);
+            System.sleep(D2, RISING,sleepTime);
+           
+            break;
+        }  
+    }  
+}

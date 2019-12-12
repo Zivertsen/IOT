@@ -16,34 +16,38 @@
 #include "MQTT.h"
 #include "Display.h"
 #include "String.h"
+#include "TimeAndSleep.h"
 
 void callback(char* topic, byte *payload, unsigned int length);
 void setup();
 void loop();
-#line 14 "c:/Studie/IOT/IOT_projekt/PhotonDisplay/src/PhotonDisplay.ino"
-#define SUBMIT_TIMER 30
+#line 15 "c:/Studie/IOT/IOT_projekt/PhotonDisplay/src/PhotonDisplay.ino"
+#define SUBMIT_TIMER 60
 #define BOOT_TIME 10
 #define BACKSLEEPMULTI 2.5
 
-static char Dtemp[20] = {0};
-static char Dpress[20] = {0};
-static char Dhumi[20] = {0};
-static char DRain[20] = {0};
+retained static char Dtemp[20] = {0};
+retained static char Dpress[20] = {0};
+retained static char Dhumi[20] = {0};
+retained static char DRain[20] = {0};
 
 static int STemp = 0;
 static int SPress = 0;
 static int SHumi = 0;
 static int SRain = 0;
 
-byte Server[] = {192,168,0,19};
-//char Server[] = "test.Mosquitto.org";
+
+
+//byte Server[] = {192,168,0,19};
+char Server[] = "test.Mosquitto.org";
 uint16_t Port = 1883;
 
 MQTT client(Server , 1883, callback);
 
-void callback(char* topic, byte *payload, unsigned int length){
+void callback(char* topic, byte *payload, unsigned int length)
+{
       
-    
+  Serial.println("callback funktion");
   if (strcmp("weather/readtemp",topic) == 0)
   {
     memcpy(Dtemp,payload,length);
@@ -93,6 +97,16 @@ void callback(char* topic, byte *payload, unsigned int length){
     }
     Serial.println();
   }
+
+  if( STemp == 1 && SPress == 1 && SHumi == 1 && SRain == 1)
+    {
+      STemp = 0;
+      SPress = 0;
+      SHumi = 0;
+      SRain = 0;
+      Serial.println("MQTT goToSleep");
+      goToSleep(SUBMIT_TIMER,BOOT_TIME);
+    }
 }
 
 // setup() runs once, when the device is first turned on.
@@ -112,38 +126,61 @@ void setup() {
       client.subscribe("weather/readhumi");
       client.subscribe("weather/readrain");
     }
-
-  client.publish("weather/getweather","1");
-  
  
 }
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop() {
+  int currentTime = 0;
+  //Checks to update RTC Clock
+  checktime();
     if (client.isConnected())
       client.loop();
 
-    
-  if( STemp == 1 && SPress == 1 && SHumi == 1 && SRain == 1)
+  //Brodcast at time or go to sleep or wait
+  currentTime = Time.second()%SUBMIT_TIMER;
+
+  Serial.println("Main loop");
+  SleepResult result = System.sleepResult();
+
+  if(result.wokenUpByRtc())
   {
-    Serial.println("Display draw");
-    delay(10);
-    SDD1306_Temp(Dtemp);
-    delay(10000);
-    SDD1306_Press(Dpress);
-    delay(10000);
-    SDD1306_Humi(Dhumi);
-    delay(10000);
-    SDD1306_Rain(DRain);
-    delay(10000);
-    SDD1306_ClearDisplay();
-    STemp = 0;
-    SPress = 0;
-    SHumi = 0;
-    SRain = 0;
-    System.sleep(SLEEP_MODE_DEEP);
+
+    Serial.println("Get weather data");
+    client.publish("weather/getweather","1");
+    while(true)
+    {
+      if (client.isConnected())
+      {
+        client.loop();
+        Serial.println("MQTT loop");
+      }
+      
+      delay(2);
+    }
+  }
+  else if(result.wokenUpByPin())
+  {
+      Serial.println("Display draw");
+      SDD1306_Temp(Dtemp);
+      delay(10000);
+      SDD1306_Press(Dpress);
+      delay(10000);
+      SDD1306_Humi(Dhumi);
+      delay(10000);
+      SDD1306_Rain(DRain);
+      delay(10000);
+      SDD1306_ClearDisplay();
+      
+      goToSleep(SUBMIT_TIMER,BOOT_TIME);
+  }
+  else
+  { 
+    Serial.println("No RTC or PIN - goToSleep");
+    System.sleep(D2, RISING,5);
   }
   
+
   delay(500);
 }
 
