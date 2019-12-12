@@ -108,19 +108,16 @@ void setup() {
       client.subscribe("weather/readhumi");
       client.subscribe("weather/readrain");
     }
- 
 }
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop() {
-  int currentTime = 0;
-  //Checks to update RTC Clock
+  
   checktime();
     if (client.isConnected())
       client.loop();
 
-  //Brodcast at time or go to sleep or wait
-  currentTime = Time.second()%SUBMIT_TIMER;
+
 
   Serial.println("Main loop");
   SleepResult result = System.sleepResult();

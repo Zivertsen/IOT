@@ -20,7 +20,6 @@ port = 1883
 
 def DataStorage (temp, humi, press, rain ,time):
 
-    
     print("DataStorage")
     with open('employee_file.txt', 'r') as f:
         Wlist = f.readlines()
@@ -40,7 +39,7 @@ def DataStorage (temp, humi, press, rain ,time):
             f.write("%s" % item)
         
         #write the new measurement to the file
-        f.write(time.strftime("%Y-%m-%d %H:%M:%S") + ',' + str(temp) + ',' + str(humi) + ',' + str(press) + str(rain) + '\n')
+        f.write(time.strftime("%Y-%m-%d %H:%M:%S") + ',' + str(temp) + ',' + str(humi) + ',' + str(press)+ ',' + str(rain) + '\n')
 
 
 def compare_weather(sensor, temp, press, humi, rain):
@@ -64,9 +63,9 @@ def compare_weather(sensor, temp, press, humi, rain):
 
     TimeNow = datetime.now()
     
-    print("TTemp: " + str(Ttemp))
-    print("TPress: " + str(Tpress))
-    print("THumi: " + str(Thumi))
+    print("Godkendt temp: " + str(Ttemp))
+    print("Godkendt press: " + str(Tpress))
+    print("Godkendt humi: " + str(Thumi))
     main.weatherStemp = temp
     main.weatherSpress = press
     main.weatherShumi = humi
@@ -123,6 +122,9 @@ def on_message(mqttc, obj, msg):
         compare_weather.status_press = 0
         compare_weather.status_temp = 0
         sensor = WH.webhook("Viborg")
+        print("Web temp: " + str(sensor[0]))
+        print("web press: " + str(sensor[1]))
+        print("web humi: " + str(sensor[2]))
         compare_weather(sensor, compare_weather.temp, compare_weather.press, 
         compare_weather.humi, compare_weather.rain)
     

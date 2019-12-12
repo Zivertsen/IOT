@@ -5,7 +5,7 @@ Adafruit_SSD1306 oled(OLED_RESET);
 
 void SDD1306_Init()
 {
-    oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+    oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D
     oled.clearDisplay();
     oled.display();
 }
