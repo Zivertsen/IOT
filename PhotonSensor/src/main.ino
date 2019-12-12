@@ -106,8 +106,9 @@ void loop()
     client.publish("weather/Rainfall", rain);
 
     //demo funktion
-    Serial.printlnf("curent: %d",rain_count);
-    Serial.printlnf(Time.timeStr());
+    Serial.println();
+    Serial.println(Time.timeStr());
+    Serial.printlnf("Rain amount: %d",rain_count);
     Serial.print("Temp: ");
 
     for(int i =  0; i < 10; i++)
