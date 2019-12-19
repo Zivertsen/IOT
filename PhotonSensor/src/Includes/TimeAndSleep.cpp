@@ -1,6 +1,7 @@
 
 #include "TimeAndSleep.h"
 #include "Particle.h"
+#include "math.h"
 
 
 #define ONE_DAY_MILLIS (24 * 60 * 60 * 1000)
@@ -43,7 +44,10 @@ void goToDeepSleep(int timer,int bTime)
         currentTime = (Time.second()%timer);
         if (currentTime != timeAtSleep)
         {
-            int sleepTime = timer-currentTime-bTime;
+            
+            unsigned int sleepTime = abs(timer-currentTime-bTime);
+            Serial.printlnf("Time: %d",sleepTime);
+
             System.sleep(SLEEP_MODE_DEEP,sleepTime);
         }  
     }  

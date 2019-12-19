@@ -97,13 +97,13 @@ void loop()
     sprintf(press, "%.2f", press1);
     sprintf(rain,"%d", rain_count);
 
-    client.publish("weather/Temperatur",temp);
+    client.publish("weather/Temperatur",temp,MQTT::QOS1);
     delay(5);
-    client.publish("weather/Tryk",press);
+    client.publish("weather/Tryk",press, MQTT::QOS1);
     delay(5);
-    client.publish("weather/Fugtighed",humi);
+    client.publish("weather/Fugtighed", humi, MQTT::QOS1);
     delay(5);
-    client.publish("weather/Rainfall", rain);
+    client.publish("weather/Rainfall", rain, MQTT::QOS1);
 
     //demo funktion
     Serial.println();

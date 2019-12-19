@@ -96,7 +96,7 @@ void loop()
 
   //Brodcast at time or go to sleep or wait
   curentTime = Time.second()%SUBMIT_TIMER;
-  if (curentTime == 0)
+  if ((curentTime == 0) || (curentTime <= 30))
   {
     // Get rain guage counct
     rain_count += get_rainGuageCount();
@@ -106,17 +106,18 @@ void loop()
     sprintf(press, "%.2f", press1);
     sprintf(rain,"%d", rain_count);
 
-    client.publish("weather/Temperatur",temp);
+    client.publish("weather/Temperatur",temp,MQTT::QOS1);
     delay(5);
-    client.publish("weather/Tryk",press);
+    client.publish("weather/Tryk",press, MQTT::QOS1);
     delay(5);
-    client.publish("weather/Fugtighed",humi);
+    client.publish("weather/Fugtighed", humi, MQTT::QOS1);
     delay(5);
-    client.publish("weather/Rainfall", rain);
+    client.publish("weather/Rainfall", rain, MQTT::QOS1);
 
     //demo funktion
-    Serial.printlnf("curent: %d",rain_count);
-    Serial.printlnf(Time.timeStr());
+    Serial.println();
+    Serial.println(Time.timeStr());
+    Serial.printlnf("Rain amount: %d",rain_count);
     Serial.print("Temp: ");
 
     for(int i =  0; i < 10; i++)

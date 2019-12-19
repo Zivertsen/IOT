@@ -54,6 +54,7 @@ void callback(char* topic, byte *payload, unsigned int length)
     Dtemp[length+1] = '\0';
     STemp = 1;
     Serial.println("callback Temp: ");
+    Serial.printlnf("Stemp: %d",STemp);
     for (int i = 0; i < 20; i++)
     {
       Serial.print(Dtemp[i]);
@@ -67,6 +68,7 @@ void callback(char* topic, byte *payload, unsigned int length)
     Dpress[length+1] = '\0';
     SPress = 1;
     Serial.println("callback Press: ");
+    Serial.printlnf("SPree: %d",SPress);
     for (int i = 0; i < 20; i++)
     {
       Serial.print(Dpress[i]);
@@ -79,6 +81,7 @@ void callback(char* topic, byte *payload, unsigned int length)
     Dhumi[length+1] = '\0';
     SHumi = 1;
     Serial.println("callback Humi: ");
+    Serial.printlnf("SHumi: %d",SHumi);
     for (int i = 0; i < 20; i++)
     {
       Serial.print(Dhumi[i]);
@@ -90,7 +93,9 @@ void callback(char* topic, byte *payload, unsigned int length)
     memcpy(DRain,payload,length);
     DRain[length+1] = '\0';
     SRain = 1;
+    
     Serial.println("callback Rain: ");
+    Serial.printlnf("SRain: %d",SRain);
     for (int i = 0; i < 20; i++)
     {
       Serial.print(DRain[i]);
@@ -118,19 +123,16 @@ void setup() {
       client.subscribe("weather/readhumi");
       client.subscribe("weather/readrain");
     }
- 
 }
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop() {
-  int currentTime = 0;
-  //Checks to update RTC Clock
+  
   checktime();
     if (client.isConnected())
       client.loop();
 
-  //Brodcast at time or go to sleep or wait
-  currentTime = Time.second()%SUBMIT_TIMER;
+
 
   Serial.println("Main loop");
   SleepResult result = System.sleepResult();
@@ -139,8 +141,6 @@ void loop() {
   {
     client.connect("weatherclient");
     
-    Serial.println("Get weather data");
-    client.publish("weather/getweather","1");
     // publish/subscribe
     if (client.isConnected()) {
       Serial.println("subscribe");
@@ -149,13 +149,19 @@ void loop() {
       client.subscribe("weather/readhumi");
       client.subscribe("weather/readrain");
     }
+
+    delay(20);
+
+    Serial.println("Get weather data");
+    client.publish("weather/getweather","1");
     while(true)
     {
       if (client.isConnected())
       {
         client.loop();
       }
-      else if( STemp == 1 && SPress == 1 && SHumi == 1 && SRain == 1)
+      
+      if( STemp == 1 && SPress == 1 && SHumi == 1 && SRain == 1)
       {
         STemp = 0;
         SPress = 0;
